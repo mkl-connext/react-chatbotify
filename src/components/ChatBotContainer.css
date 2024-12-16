@@ -24,7 +24,7 @@
 }
 
 .rcb-window-embedded .rcb-chat-window {
-	position: static;
+	position: fixed;
 	opacity: 1;
 	visibility: visible;
 	right: auto;

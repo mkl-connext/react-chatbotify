@@ -19,9 +19,7 @@ const VoiceButton = ({
 	inputRef,
 	textAreaDisabled,
 	voiceToggledOn,
-	handleToggleVoice,
-	triggerSendVoiceInput,
-	setInputLength
+	handleToggleVoice, setInputLength
 }: {
 	inputRef: RefObject<HTMLTextAreaElement | HTMLInputElement>;
 	textAreaDisabled: boolean;
@@ -37,9 +35,9 @@ const VoiceButton = ({
 	// handles starting and stopping of voice recording on toggle
 	useEffect(() => {
 		if (voiceToggledOn) {
-			startVoiceRecording(botOptions, handleToggleVoice, triggerSendVoiceInput, setInputLength, inputRef);
+			startVoiceRecording(handleToggleVoice);
 		} else {
-			stopVoiceRecording();
+			stopVoiceRecording(botOptions, inputRef, setInputLength);
 		}
 	}, [voiceToggledOn]);
 

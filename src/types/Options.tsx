@@ -108,6 +108,7 @@ export type Options = {
 		autoSendDisabled?: boolean;
 		autoSendPeriod?: number;
 		icon?: string;
+		SpeechRecognition?: (audioBlob: Blob) => Promise<string>;
 	},
 	footer?: {
 		text?: string | JSX.Element;

@@ -112,7 +112,7 @@ function App() {
 							chatInput: {botDelay: 1000},
 							userBubble: {showAvatar: true},
 							botBubble: {showAvatar: true},
-							voice: {disabled: false}
+							voice: {disabled: false, SpeechRecognition: exampleSpeechToText}
 						}}
 					></ChatBot>
 				</div>
@@ -120,5 +120,12 @@ function App() {
 		</div>
 	);
 }
+
+async function exampleSpeechToText(audioBlob: Blob): Promise<string>{
+	await new Promise(f => setTimeout(f, 1000));
+	return audioBlob.type;
+}
+
+
 
 export default App;

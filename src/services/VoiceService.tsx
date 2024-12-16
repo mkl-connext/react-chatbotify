@@ -1,97 +1,114 @@
 import { RefObject, Dispatch, SetStateAction } from "react";
-
 import { Options } from "../types/Options";
 
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-const recognition = SpeechRecognition != null ? new SpeechRecognition() : null;
-let inactivityTimer: ReturnType<typeof setTimeout> | null;
-let autoSendTimer: ReturnType<typeof setTimeout>;
+let mediaRecorder: MediaRecorder | null = null;
+let audioChunks: Blob[] = [];
+let recordingFinished = false;
 let toggleOn = false;
 
 /**
  * Starts voice recording for input into textarea.
- * 
- * @param botOptions options provided to the bot
+ *
  * @param handleToggleVoice handles toggling of voice
- * @param triggerSendVoiceInput triggers sending of voice input into chat window
- * @param setInputLength sets the input length to reflect character count & limit
- * @param inputRef reference to textarea for input
  */
-export const startVoiceRecording = (botOptions: Options, handleToggleVoice: () => void,
-	triggerSendVoiceInput: () => void, setInputLength: Dispatch<SetStateAction<number>>,
-	inputRef: RefObject<HTMLTextAreaElement | HTMLInputElement>) => {
-
-	if (!recognition) {
+export const startVoiceRecording = (
+	handleToggleVoice: () => void
+) => {
+	if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+		console.error("Browser does not support audio recording.");
 		return;
 	}
-	
-	if (!toggleOn) {
-		try {
-			toggleOn = true;
-			recognition.lang = botOptions.voice?.language as string;
-			recognition.start();
-		} catch {
-			// catches rare dom exception if user spams voice button
-		}
-	}
 
-	const inactivityPeriod = botOptions.voice?.timeoutPeriod;
-	const autoSendPeriod = botOptions.voice?.autoSendPeriod;
+	toggleOn = true;
 
-	recognition.onresult = event => {
-		clearTimeout(inactivityTimer as ReturnType<typeof setTimeout>);
-		inactivityTimer = null;
-		clearTimeout(autoSendTimer);
+	navigator.mediaDevices
+		.getUserMedia({ audio: true })
+		.then((stream) => {
+			mediaRecorder = new MediaRecorder(stream);
 
-		const voiceInput = event.results[event.results.length - 1][0].transcript;
+			mediaRecorder.ondataavailable = (event) => {
+				if (event.data.size > 0) {
+					audioChunks.push(event.data);
+				}
+			};
 
-		if (inputRef.current) {
-			const characterLimit = botOptions.chatInput?.characterLimit
-			const newInput = inputRef.current.value + voiceInput;
-			if (characterLimit != null && characterLimit >= 0 && newInput.length > characterLimit) {
-				inputRef.current.value = newInput.slice(0, characterLimit);
-			} else {
-				inputRef.current.value = newInput
-			}
-			setInputLength(inputRef.current.value.length);
-		}
+			mediaRecorder.onstop = () => {
+				stream.getTracks().forEach((track) => track.stop());
+				recordingFinished = true;
+			};
 
-		inactivityTimer = setTimeout(() => handleTimeout(handleToggleVoice), inactivityPeriod);
-		if (!botOptions.voice?.autoSendDisabled) {
-			autoSendTimer = setTimeout(triggerSendVoiceInput, autoSendPeriod);
-		}
-	};
-
-	recognition.onend = () => {
-		if (toggleOn) {
-			recognition.start();
-			if (!inactivityTimer) {
-				inactivityTimer = setTimeout(() => handleTimeout(handleToggleVoice), inactivityPeriod);
-			}
-		} else {
-			clearTimeout(inactivityTimer as ReturnType<typeof setTimeout>);
-			inactivityTimer = null;
-			clearTimeout(autoSendTimer);
-		}
-	};
-
-	// Start the inactivity timer
-	inactivityTimer = setTimeout(() => handleTimeout(handleToggleVoice), inactivityPeriod);
-}
+			mediaRecorder.start();
+		})
+		.catch((error) => {
+			console.error("Error accessing microphone:", error);
+			handleToggleVoice();
+			toggleOn = false;
+			recordingFinished = true;
+		});
+};
 
 /**
  * Stops voice recording.
+ *
+ * @param botOptions options provided to the bot, including custom SpeechRecognition
+ * @param inputRef reference to textarea for input
+ * @param setInputLength sets the input length to reflect character count & limit
  */
-export const stopVoiceRecording = () => {
-	if (!recognition) {
+export const stopVoiceRecording = async (
+	botOptions: Options,
+	inputRef: RefObject<HTMLTextAreaElement | HTMLInputElement>,
+	setInputLength: Dispatch<SetStateAction<number>>
+) => {
+	const customRecognition = botOptions.voice?.SpeechRecognition;
+
+	if (!customRecognition) {
+		console.error("No custom SpeechRecognition function provided.");
+		return;
+	}
+
+	if (!mediaRecorder) {
 		return;
 	}
 
 	toggleOn = false;
-	if (recognition) {
-		recognition.stop();
+
+	mediaRecorder.stop();
+
+	//wait for tracks to be closed
+	while (!recordingFinished){
+		await new Promise(f => setTimeout(f, 100));
 	}
-}
+
+	const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+
+	try {
+		const transcript = await customRecognition(audioBlob);
+
+		if (inputRef.current) {
+			const characterLimit = botOptions.chatInput?.characterLimit;
+			const newInput = inputRef.current.value + transcript;
+
+			if (
+				characterLimit != null &&
+				characterLimit >= 0 &&
+				newInput.length > characterLimit
+			) {
+				inputRef.current.value = newInput.slice(0, characterLimit);
+			} else {
+				inputRef.current.value = newInput;
+			}
+
+			setInputLength(inputRef.current.value.length);
+		}
+	} catch (error) {
+		console.error("Custom SpeechRecognition failed:", error);
+	} finally {
+		audioChunks = [];
+		mediaRecorder = null;
+		recordingFinished = false;
+	}
+};
+
 
 /**
  * Syncs voice toggle to textarea state (voice should not be enabled if textarea is disabled).
@@ -101,24 +118,13 @@ export const stopVoiceRecording = () => {
  */
 export const syncVoiceWithChatInput = (keepVoiceOn: boolean, botOptions: Options) => {
 
-	if (botOptions.voice?.disabled || !botOptions.chatInput?.blockSpam || !recognition) {
+	if (botOptions.voice?.disabled || !botOptions.chatInput?.blockSpam ) {
 		return;
 	}
 
 	if (keepVoiceOn && !toggleOn) {
 		toggleOn = true;
-		recognition.start();
 	} else if (!keepVoiceOn) {
-		stopVoiceRecording();
+		toggleOn = false;
 	}
-}
-
-/**
- * Handles timeout for automatically turning off voice.
- * 
- * @param handleToggleVoice handles toggling of voice
- */
-const handleTimeout = (handleToggleVoice: () => void) => {
-	handleToggleVoice();
-	stopVoiceRecording();
 }
