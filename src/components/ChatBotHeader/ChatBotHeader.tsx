@@ -29,7 +29,7 @@ const ChatBotHeader = ({
 
 	// styles for header
 	const headerStyle: React.CSSProperties = {
-		backgroundColor: botOptions.theme?.primaryColor,
+		backgroundColor: botOptions.theme?.secondaryColor,
 		...botOptions.headerStyle
 	}
 
