@@ -243,7 +243,7 @@ const ChatBotInput = ({
 				/>
 			}
 			<div className="rcb-chat-input-button-container">
-				{!botOptions.voice?.disabled && isDesktop &&
+				{!botOptions.voice?.disabled &&
 					<VoiceButton inputRef={inputRef} textAreaDisabled={textAreaDisabled}
 						voiceToggledOn={voiceToggledOn} handleToggleVoice={handleToggleVoice}
 						triggerSendVoiceInput={triggerSendVoiceInput} setInputLength={setInputLength}
