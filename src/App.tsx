@@ -1,4 +1,5 @@
 import ChatBot from "./components/ChatBot";
+import { CustomGPT } from "./types/CustomGPT";
 import { Flow } from "./types/Flow";
 import { Params } from "./types/Params";
 
@@ -109,7 +110,29 @@ function App() {
 						flow={flow}
 						options={{
 							audio: {disabled: false},
-							chatInput: {botDelay: 1000},
+							chatInput: {botDelay: 1000, customGPTs: [
+								{
+									id: "gpt1",
+									title: "GPT 1",
+									description: "An example of a custom GPT",
+									image: "https://picsum.photos/200"
+								},
+								{
+									id: "gpt2",
+									title: "GPT 2",
+									description: "Another example of a custom GPT",
+									image: "https://picsum.photos/200"
+								},
+								{
+									id: "gpt3",
+									title: "GPT 3",
+									description: "Yet another example of a custom GPT",
+									image: "https://picsum.photos/200"
+								}
+							],
+							onCustomGPTSelect: (gpt: CustomGPT) => {
+								console.log(gpt);
+							}},
 							userBubble: {showAvatar: true},
 							botBubble: {showAvatar: true},
 							voice: {disabled: false, SpeechRecognition: exampleSpeechToText}

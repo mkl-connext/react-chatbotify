@@ -1,3 +1,5 @@
+import { CustomGPT } from "./CustomGPT";
+
 /**
  * Defines the configurable options/styles for the chat bot.
  */
@@ -70,6 +72,9 @@ export type Options = {
 		sendOptionOutput?: boolean;
 		sendCheckboxOutput?: boolean;
 		sendAttachmentOutput?: boolean;
+		customGPTSelectTitle?: string;
+		customGPTs?: CustomGPT[];
+		onCustomGPTSelect?: (gpt: CustomGPT) => void;
 	},
 	chatWindow?: {
 		showScrollbar?: boolean;

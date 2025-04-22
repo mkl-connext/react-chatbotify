@@ -1,4 +1,3 @@
-
 import {
 	useState,
 	ChangeEvent,
@@ -12,11 +11,13 @@ import {
 } from "react";
 import SendButton from "./SendButton/SendButton";
 import VoiceButton from "./VoiceButton/VoiceButton";
+import GPTSelection from "./GPTSelection/GPTSelection";
 import { isDesktop } from "../../services/Utils";
 import { useBotOptions } from "../../context/BotOptionsContext";
 
 import "./ChatBotInput.css";
 import { Flow } from "../../types/Flow";
+import { CustomGPT } from "../../types/CustomGPT";
 
 /**
  * Contains chat input field for user to enter messages.
@@ -72,6 +73,22 @@ const ChatBotInput = ({
 		handleActionInput(currPath, inputRef.current?.value as string);
 		setInputLength(0);
 	}, [voiceInputTrigger])
+
+	// Add state for GPT selection
+	const [showGPTSelection, setShowGPTSelection] = useState(false);
+	const [cursorPosition, setCursorPosition] = useState<number>(0);
+
+	const handleGPTSelect = (option: CustomGPT) => {
+		if(inputRef.current) {
+			const value = inputRef.current.value;
+			const beforeCursor = value.substring(0, cursorPosition - 1);
+			const afterCursor = value.substring(cursorPosition);
+			inputRef.current.value = `${beforeCursor}${option.title} ${afterCursor}`;
+			setInputLength(inputRef.current.value.length);
+		}
+		botOptions.chatInput?.onCustomGPTSelect?.(option);
+		setShowGPTSelection(false);
+	};
 
 	// styles for text area
 	const textAreaStyle: React.CSSProperties = {
@@ -146,6 +163,20 @@ const ChatBotInput = ({
 			}
 			handleSubmit(event);
 		}
+
+		if (event.key === "@") {
+			const selectionStart = event.currentTarget.selectionStart;
+			if (selectionStart !== null && botOptions.chatInput?.customGPTs
+				 && botOptions.chatInput?.customGPTs.length > 0) {
+				setCursorPosition(selectionStart + 1);
+				setShowGPTSelection(true);
+			}
+		}
+
+		// Hide GPT selection on escape
+		if (event.key === "Escape") {
+			setShowGPTSelection(false);
+		}
 	};
 
 	/**
@@ -200,11 +231,24 @@ const ChatBotInput = ({
 		setVoiceInputTrigger(prev => !prev);
 	}
 
+	// Add click handler to hide GPT selection when clicking outside
+	useEffect(() => {
+		const handleClickOutside = () => {
+			if (showGPTSelection) {
+				setShowGPTSelection(false);
+			}
+		};
+
+		document.addEventListener("mousedown", handleClickOutside as any);
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside as any);
+		};
+	}, [showGPTSelection]);
+
 	return (
 		<div 
 			onMouseDown={(event: MouseEvent) => {
 				event.stopPropagation();
-				// checks if user is interacting with chatbot for the first time
 				if (!hasFlowStarted && botOptions.theme?.flowStartTrigger === "ON_CHATBOT_INTERACT") {
 					setHasFlowStarted(true);
 				}
@@ -212,6 +256,13 @@ const ChatBotInput = ({
 			style={botOptions.chatInputContainerStyle} 
 			className="rcb-chat-input"
 		>
+			{showGPTSelection && (
+				<GPTSelection
+					isVisible={showGPTSelection}
+					options={botOptions.chatInput?.customGPTs || []}
+					onSelect={handleGPTSelect}
+				/>
+			)}
 			{/* textarea intentionally does not use the disabled property to prevent keyboard from closing on mobile */}
 			{textAreaSensitiveMode && botOptions.sensitiveInput?.maskInTextArea ?
 				<input
