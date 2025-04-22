@@ -11,14 +11,17 @@ type GPTSelectionProps = {
 
 const GPTSelection: React.FC<GPTSelectionProps> = ({ isVisible, options, onSelect }) => {
 	if (!isVisible) return null;
-    
+
 	return (
 		<div className="rcb-gpt-selection">
 			{options.map((option) => (
 				<div
 					key={option.id}
 					className="rcb-gpt-option"
-					onClick={() => onSelect(option)}
+					onMouseDown={(e) => {
+						onSelect(option);
+						e.stopPropagation();
+					}}
 				>
 					{option.image && (
 						<img src={option.image} alt={option.title} className="rcb-gpt-option-icon" />

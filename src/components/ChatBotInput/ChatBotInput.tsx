@@ -63,6 +63,9 @@ const ChatBotInput = ({
 	// tracks length of input
 	const [inputLength, setInputLength] = useState<number>(0);
 
+	// tracks selected GPTs
+	const [selectedGPTs, setSelectedGPTs] = useState<CustomGPT[]>([]);
+
 	// serves as a workaround (together with useEffect hook) for sending voice input, can consider a better approach
 	const [voiceInputTrigger, setVoiceInputTrigger] = useState<boolean>(false);
 	useEffect(() => {
@@ -76,18 +79,25 @@ const ChatBotInput = ({
 
 	// Add state for GPT selection
 	const [showGPTSelection, setShowGPTSelection] = useState(false);
-	const [cursorPosition, setCursorPosition] = useState<number>(0);
 
 	const handleGPTSelect = (option: CustomGPT) => {
-		if(inputRef.current) {
+		if (inputRef.current) {
+			// Remove the @ character
 			const value = inputRef.current.value;
-			const beforeCursor = value.substring(0, cursorPosition - 1);
-			const afterCursor = value.substring(cursorPosition);
-			inputRef.current.value = `${beforeCursor}${option.title} ${afterCursor}`;
-			setInputLength(inputRef.current.value.length);
+			const lastAtIndex = value.lastIndexOf('@');
+			if (lastAtIndex !== -1) {
+				inputRef.current.value = value.substring(0, lastAtIndex) + value.substring(lastAtIndex + 1);
+				setInputLength(inputRef.current.value.length);
+			}
 		}
+		setSelectedGPTs([option]); // Only allow one GPT
 		botOptions.chatInput?.onCustomGPTSelect?.(option);
 		setShowGPTSelection(false);
+	};
+
+	const handleRemoveGPT = () => {
+		setSelectedGPTs([]);
+		botOptions.chatInput?.onCustomGPTRemove?.();
 	};
 
 	// styles for text area
@@ -168,7 +178,6 @@ const ChatBotInput = ({
 			const selectionStart = event.currentTarget.selectionStart;
 			if (selectionStart !== null && botOptions.chatInput?.customGPTs
 				 && botOptions.chatInput?.customGPTs.length > 0) {
-				setCursorPosition(selectionStart + 1);
 				setShowGPTSelection(true);
 			}
 		}
@@ -222,6 +231,7 @@ const ChatBotInput = ({
 		}
 		handleActionInput(currPath, inputRef.current?.value as string);
 		setInputLength(0);
+		setSelectedGPTs([]); // Clear selected GPTs after sending
 	};
 
 	/**
@@ -262,6 +272,25 @@ const ChatBotInput = ({
 					options={botOptions.chatInput?.customGPTs || []}
 					onSelect={handleGPTSelect}
 				/>
+			)}
+			{selectedGPTs.length > 0 && (
+				<div className="rcb-selected-gpts">
+					{selectedGPTs.map((gpt) => (
+						<div key={gpt.id} className="rcb-selected-gpt">
+							{gpt.image && (
+								<img src={gpt.image} alt={gpt.title} className="rcb-selected-gpt-icon" />
+							)}
+							<span>{gpt.title}</span>
+							<button 
+								className="rcb-selected-gpt-remove" 
+								onClick={handleRemoveGPT}
+								aria-label="Remove GPT"
+							>
+								×
+							</button>
+						</div>
+					))}
+				</div>
 			)}
 			{/* textarea intentionally does not use the disabled property to prevent keyboard from closing on mobile */}
 			{textAreaSensitiveMode && botOptions.sensitiveInput?.maskInTextArea ?

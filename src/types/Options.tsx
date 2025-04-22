@@ -75,6 +75,7 @@ export type Options = {
 		customGPTSelectTitle?: string;
 		customGPTs?: CustomGPT[];
 		onCustomGPTSelect?: (gpt: CustomGPT) => void;
+		onCustomGPTRemove?: () => void;
 	},
 	chatWindow?: {
 		showScrollbar?: boolean;

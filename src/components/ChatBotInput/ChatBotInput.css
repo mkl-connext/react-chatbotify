@@ -1,12 +1,10 @@
 /* ChatBot Input */
 
 .rcb-chat-input {
-	padding: 8px 16px;
-	border-top: 1px solid #ccc;
-	display: flex;
-	align-items: center;
-	background-color: #fff;
 	position: relative;
+	width: 100%;
+	padding: 10px;
+	box-sizing: border-box;
 }
 
 .rcb-chat-input::placeholder {
@@ -16,20 +14,14 @@
 /* ChatBot Input Text Area */
 
 .rcb-chat-input-textarea {
-	flex: 1;
-	padding: 8px;
-	border: none;
-	border-radius: 4px;
-	outline: none;
-	font-size: 16px;
-	resize: none; 
-	height: auto;
-	min-height: 38px;
-	overflow-y: scroll;
-	font-family: inherit;
-	background-color: #fff;
-	color: #000;
-	touch-action: none;
+	width: 100%;
+	padding: 10px;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	resize: none;
+	font-size: 14px;
+	line-height: 1.4;
+	box-sizing: border-box;
 }
 
 .rcb-chat-input-textarea::-webkit-scrollbar {
@@ -47,12 +39,69 @@
 /* ChatBot Input Button Area */
 
 .rcb-chat-input-button-container {
-	display: "flex";
-	flex-direction: "column";
+	position: absolute;
+	right: 20px;
+	bottom: 20px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	background: transparent;
 }
 
 .rcb-chat-input-char-counter {
 	font-size: 14px;
 	margin-left: 8px;
 	margin-top: 3px;
+}
+
+.rcb-selected-gpts {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.rcb-selected-gpt {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 8px;
+	background-color: #f0f0f0;
+	border-radius: 16px;
+	font-size: 12px;
+}
+
+.rcb-selected-gpt-icon {
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	object-fit: cover;
+}
+
+.rcb-selected-gpt-remove {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	padding: 0;
+	margin-left: 4px;
+	border: none;
+	background: none;
+	color: #666;
+	font-size: 16px;
+	cursor: pointer;
+	border-radius: 50%;
+	transition: background-color 0.2s;
+	line-height: 1;
+	position: relative;
+}
+
+.rcb-selected-gpt-remove:hover {
+	background-color: rgba(0, 0, 0, 0.1);
+}
+
+.rcb-selected-gpt-remove:focus {
+	outline: none;
+	background-color: rgba(0, 0, 0, 0.1);
 }

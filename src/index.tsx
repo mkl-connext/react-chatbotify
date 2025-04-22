@@ -8,6 +8,7 @@ import { Flow } from "./types/Flow";
 import { Message } from "./types/Message";
 import { Options } from "./types/Options";
 import { Params } from "./types/Params";
+import { CustomGPT } from "./types/CustomGPT";
 
 /**
  * Exports for developer use.
@@ -24,7 +25,8 @@ export type {
 	Flow,
 	Message,
 	Options,
-	Params
+	Params,
+	CustomGPT
 };
 
 export default ChatBot;
