@@ -1,3 +1,6 @@
+/* eslint-disable indent */
+/* eslint-disable react/jsx-indent-props */
+/* eslint-disable react/jsx-indent */
 import {
 	useState,
 	ChangeEvent,
@@ -292,58 +295,62 @@ const ChatBotInput = ({
 					))}
 				</div>
 			)}
-			{/* textarea intentionally does not use the disabled property to prevent keyboard from closing on mobile */}
-			{textAreaSensitiveMode && botOptions.sensitiveInput?.maskInTextArea ?
-				<input
-					ref={inputRef as RefObject<HTMLInputElement>}
-					type="password"
-					className="rcb-chat-input-textarea"
-					style={textAreaDisabled
-						? textAreaDisabledStyle
-						: (isFocused ? textAreaFocusedStyle : textAreaStyle)}
-					placeholder={placeholder}
-					onChange={handleTextareaValueChange}
-					onKeyDown={handleKeyDown}
-					onFocus={handleFocus}
-					onBlur={handleBlur}
-				/>
-				:
-				<textarea
-					ref={inputRef as RefObject<HTMLTextAreaElement>}
-					style={textAreaDisabled
-						? textAreaDisabledStyle
-						: (isFocused ? textAreaFocusedStyle : textAreaStyle)}
-					rows={1}
-					className="rcb-chat-input-textarea"
-					placeholder={placeholder}
-					onChange={handleTextareaValueChange}
-					onKeyDown={handleKeyDown}
-					onFocus={handleFocus}
-					onBlur={handleBlur}
-				/>
-			}
-			<div className="rcb-chat-input-button-container">
-				{!botOptions.voice?.disabled &&
-					<VoiceButton inputRef={inputRef} textAreaDisabled={textAreaDisabled}
-						voiceToggledOn={voiceToggledOn} handleToggleVoice={handleToggleVoice}
-						triggerSendVoiceInput={triggerSendVoiceInput} setInputLength={setInputLength}
+			<div className="rcb-chat-input-main">
+				{/* textarea intentionally does not use the disabled property 
+				to prevent keyboard from closing on mobile */}
+				{textAreaSensitiveMode
+					?
+						<input
+						ref={inputRef as RefObject<HTMLInputElement>}
+						type="password"
+						className="rcb-chat-input-textarea"
+						style={textAreaDisabled
+							? textAreaDisabledStyle
+							: (isFocused ? textAreaFocusedStyle : textAreaStyle)}
+						placeholder={placeholder}
+						onChange={handleTextareaValueChange}
+						onKeyDown={handleKeyDown}
+						onFocus={handleFocus}
+						onBlur={handleBlur}
+					/>
+					:
+					<textarea
+							ref={inputRef as RefObject<HTMLTextAreaElement>}
+							style={textAreaDisabled
+							? textAreaDisabledStyle
+							: (isFocused ? textAreaFocusedStyle : textAreaStyle)}
+							rows={1}
+							className="rcb-chat-input-textarea"
+							placeholder={placeholder}
+							onChange={handleTextareaValueChange}
+							onKeyDown={handleKeyDown}
+							onFocus={handleFocus}
+							onBlur={handleBlur}
 					/>
 				}
-				<SendButton handleSubmit={handleSubmit}/>
-				{botOptions.chatInput?.showCharacterCount
-					&& botOptions.chatInput?.characterLimit != null
-					&& botOptions.chatInput?.characterLimit > 0
-					&&
-					<div 
-						className="rcb-chat-input-char-counter"
-						style={inputLength >= botOptions.chatInput?.characterLimit
-							? characterLimitReachedStyle
-							: characterLimitStyle
-						}
-					>
-						{inputLength}/{botOptions.chatInput?.characterLimit}
-					</div>
-				}
+				<div className="rcb-chat-input-button-container">
+					{!botOptions.voice?.disabled &&
+						<VoiceButton inputRef={inputRef} textAreaDisabled={textAreaDisabled}
+							voiceToggledOn={voiceToggledOn} handleToggleVoice={handleToggleVoice}
+							triggerSendVoiceInput={triggerSendVoiceInput} setInputLength={setInputLength}
+						/>
+					}
+					<SendButton handleSubmit={handleSubmit}/>
+					{botOptions.chatInput?.showCharacterCount
+						&& botOptions.chatInput?.characterLimit != null
+						&& botOptions.chatInput?.characterLimit > 0
+						&&
+						<div 
+							className="rcb-chat-input-char-counter"
+							style={inputLength >= botOptions.chatInput?.characterLimit
+								? characterLimitReachedStyle
+								: characterLimitStyle
+							}
+						>
+							{inputLength}/{botOptions.chatInput?.characterLimit}
+						</div>
+					}
+				</div>
 			</div>
 		</div>
 	);

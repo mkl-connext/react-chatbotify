@@ -1,27 +1,41 @@
 /* ChatBot Input */
 
 .rcb-chat-input {
-	position: relative;
-	width: 100%;
-	padding: 10px;
-	box-sizing: border-box;
+	padding: 8px 16px;
+ 	border-top: 1px solid #ccc;
+ 	display: flex;
+ 	flex-direction: column;
+ 	background-color: #fff;
+ 	position: relative;
 }
 
 .rcb-chat-input::placeholder {
 	color: #999;
 }
 
+.rcb-chat-input-main {
+	display: flex;
+	align-items: center;
+	width: 100%;
+}
+
 /* ChatBot Input Text Area */
 
 .rcb-chat-input-textarea {
-	width: 100%;
-	padding: 10px;
-	border: 1px solid #e0e0e0;
-	border-radius: 8px;
-	resize: none;
-	font-size: 14px;
-	line-height: 1.4;
-	box-sizing: border-box;
+	flex: 1;
+ 	padding: 8px;
+ 	border: none;
+ 	border-radius: 8px;
+ 	outline: none;
+ 	font-size: 16px;
+ 	resize: none; 
+ 	height: auto;
+ 	min-height: 38px;
+ 	overflow-y: scroll;
+ 	font-family: inherit;
+ 	background-color: #fff;
+ 	color: #000;
+ 	touch-action: none;
 }
 
 .rcb-chat-input-textarea::-webkit-scrollbar {
@@ -39,19 +53,15 @@
 /* ChatBot Input Button Area */
 
 .rcb-chat-input-button-container {
-	position: absolute;
-	right: 20px;
-	bottom: 20px;
 	display: flex;
 	align-items: center;
-	gap: 8px;
-	background: transparent;
+	margin-left: 8px;
 }
 
 .rcb-chat-input-char-counter {
 	font-size: 14px;
 	margin-left: 8px;
-	margin-top: 3px;
+	margin-top: 0;
 }
 
 .rcb-selected-gpts {
@@ -59,6 +69,7 @@
 	flex-wrap: wrap;
 	gap: 8px;
 	margin-bottom: 8px;
+	width: 100%;
 }
 
 .rcb-selected-gpt {
