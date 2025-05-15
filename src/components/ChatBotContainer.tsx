@@ -585,9 +585,6 @@ const ChatBotContainer = ({ flow }: { flow: Flow }) => {
 	 * @param event mouse event
 	 */
 	const handleToggleVoice = () => {
-		if (textAreaDisabled) {
-			return;
-		}
 		setVoiceToggledOn(prev => !prev);
 	}
 
