@@ -17,6 +17,7 @@ import VoiceButton from "./VoiceButton/VoiceButton";
 import GPTSelection from "./GPTSelection/GPTSelection";
 import { isDesktop } from "../../services/Utils";
 import { useBotOptions } from "../../context/BotOptionsContext";
+import { stopVoiceRecording } from "../../services/VoiceService";
 
 import "./ChatBotInput.css";
 import { Flow } from "../../types/Flow";
@@ -226,11 +227,15 @@ const ChatBotInput = ({
 	 * 
 	 * @param event form event or mouse event
 	 */
-	const handleSubmit = (event: (FormEvent | MouseEvent)) => {
+	const handleSubmit = async (event: (FormEvent | MouseEvent)) => {
 		event.preventDefault();
 		const currPath = getCurrPath();
 		if (!currPath) {
 			return;
+		}
+		// If voice is toggled on, stop and transcribe before sending
+		if (voiceToggledOn && botOptions.voice && !botOptions.voice.disabled) {
+			await stopVoiceRecording(botOptions, inputRef, setInputLength);
 		}
 		handleActionInput(currPath, inputRef.current?.value as string);
 		setInputLength(0);
@@ -252,9 +257,9 @@ const ChatBotInput = ({
 			}
 		};
 
-		document.addEventListener("mousedown", handleClickOutside as any);
+		document.addEventListener("mousedown", handleClickOutside);
 		return () => {
-			document.removeEventListener("mousedown", handleClickOutside as any);
+			document.removeEventListener("mousedown", handleClickOutside);
 		};
 	}, [showGPTSelection]);
 
